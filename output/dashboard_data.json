@@ -1,0 +1,277 @@
+{
+  "monthly_trend": [
+    {
+      "month": "2024-01",
+      "revenue": 63549.99,
+      "orders": 167
+    },
+    {
+      "month": "2024-02",
+      "revenue": 71627.34,
+      "orders": 160
+    },
+    {
+      "month": "2024-03",
+      "revenue": 70186.46,
+      "orders": 166
+    },
+    {
+      "month": "2024-04",
+      "revenue": 66865.89,
+      "orders": 163
+    },
+    {
+      "month": "2024-05",
+      "revenue": 68870.64,
+      "orders": 173
+    },
+    {
+      "month": "2024-06",
+      "revenue": 72660.84,
+      "orders": 167
+    },
+    {
+      "month": "2024-07",
+      "revenue": 72620.72,
+      "orders": 168
+    },
+    {
+      "month": "2024-08",
+      "revenue": 56079.28,
+      "orders": 144
+    },
+    {
+      "month": "2024-09",
+      "revenue": 58781.57,
+      "orders": 150
+    },
+    {
+      "month": "2024-10",
+      "revenue": 67531.01,
+      "orders": 175
+    },
+    {
+      "month": "2024-11",
+      "revenue": 51398.13,
+      "orders": 133
+    },
+    {
+      "month": "2024-12",
+      "revenue": 65575.37,
+      "orders": 172
+    },
+    {
+      "month": "2025-01",
+      "revenue": 60669.91,
+      "orders": 150
+    },
+    {
+      "month": "2025-02",
+      "revenue": 64875.98,
+      "orders": 156
+    },
+    {
+      "month": "2025-03",
+      "revenue": 58012.09,
+      "orders": 165
+    },
+    {
+      "month": "2025-04",
+      "revenue": 53255.18,
+      "orders": 131
+    },
+    {
+      "month": "2025-05",
+      "revenue": 61382.39,
+      "orders": 166
+    },
+    {
+      "month": "2025-06",
+      "revenue": 81032.5,
+      "orders": 184
+    },
+    {
+      "month": "2025-07",
+      "revenue": 63670.77,
+      "orders": 159
+    },
+    {
+      "month": "2025-08",
+      "revenue": 60268.23,
+      "orders": 157
+    },
+    {
+      "month": "2025-09",
+      "revenue": 67071.09,
+      "orders": 180
+    },
+    {
+      "month": "2025-10",
+      "revenue": 80937.42,
+      "orders": 198
+    },
+    {
+      "month": "2025-11",
+      "revenue": 64339.98,
+      "orders": 161
+    },
+    {
+      "month": "2025-12",
+      "revenue": 67134.4,
+      "orders": 157
+    },
+    {
+      "month": "2026-01",
+      "revenue": 62155.31,
+      "orders": 150
+    },
+    {
+      "month": "2026-02",
+      "revenue": 71070.16,
+      "orders": 151
+    },
+    {
+      "month": "2026-03",
+      "revenue": 67605.43,
+      "orders": 168
+    },
+    {
+      "month": "2026-04",
+      "revenue": 64862.34,
+      "orders": 160
+    },
+    {
+      "month": "2026-05",
+      "revenue": 67118.64,
+      "orders": 158
+    },
+    {
+      "month": "2026-06",
+      "revenue": 78515.5,
+      "orders": 165
+    },
+    {
+      "month": "2026-07",
+      "revenue": 53563.89,
+      "orders": 146
+    }
+  ],
+  "by_category": [
+    {
+      "category": "Apparel",
+      "revenue": 424612.95
+    },
+    {
+      "category": "Home & Kitchen",
+      "revenue": 408434.12
+    },
+    {
+      "category": "Sports",
+      "revenue": 406968.65
+    },
+    {
+      "category": "Electronics",
+      "revenue": 401070.34
+    },
+    {
+      "category": "Beauty",
+      "revenue": 392202.39
+    }
+  ],
+  "by_city": [
+    {
+      "city": "Lahore",
+      "revenue": 511146.43
+    },
+    {
+      "city": "Karachi",
+      "revenue": 503816.87
+    },
+    {
+      "city": "Peshawar",
+      "revenue": 279966.26
+    },
+    {
+      "city": "Faisalabad",
+      "revenue": 251649.18
+    },
+    {
+      "city": "Islamabad",
+      "revenue": 245419.83
+    },
+    {
+      "city": "Multan",
+      "revenue": 241289.88
+    }
+  ],
+  "top_products": [
+    {
+      "product": "Denim Jacket",
+      "revenue": 101149.58,
+      "units": 853
+    },
+    {
+      "product": "Football",
+      "revenue": 92851.14,
+      "units": 798
+    },
+    {
+      "product": "Blender",
+      "revenue": 92352.2,
+      "units": 767
+    },
+    {
+      "product": "Wool Sweater",
+      "revenue": 90336.68,
+      "units": 732
+    },
+    {
+      "product": "Non-Stick Pan",
+      "revenue": 88006.8,
+      "units": 754
+    },
+    {
+      "product": "Dumbbell Set",
+      "revenue": 86300.0,
+      "units": 700
+    },
+    {
+      "product": "Webcam HD",
+      "revenue": 83272.76,
+      "units": 663
+    },
+    {
+      "product": "Cotton T-Shirt",
+      "revenue": 82005.79,
+      "units": 698
+    }
+  ],
+  "payment_split": [
+    {
+      "method": "Cash",
+      "revenue": 678192.69,
+      "count": 1667
+    },
+    {
+      "method": "Credit Card",
+      "revenue": 662823.6,
+      "count": 1636
+    },
+    {
+      "method": "Mobile Wallet",
+      "revenue": 351157.06,
+      "count": 864
+    },
+    {
+      "method": "Debit Card",
+      "revenue": 341115.1,
+      "count": 833
+    }
+  ],
+  "kpis": {
+    "total_revenue": 2033288.45,
+    "total_orders": 5000,
+    "aov": 406.66,
+    "total_customers": 238
+  }
+}

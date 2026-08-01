@@ -1,0 +1,16 @@
+ETL run started: 2026-08-01T09:11:39
+[EXTRACT] Read 5060 raw rows from raw_sales_data.csv
+[TRANSFORM] Dropped 60 duplicate transactions
+[TRANSFORM] Dropped 0 rows with unparseable dates
+[TRANSFORM] Imputed quantity for 165 rows (default = 1)
+[TRANSFORM] Imputed unit_price for 104 rows (avg product price)
+[TRANSFORM] 5000 clean rows ready to load
+[LOAD] Star schema created (dim_date, dim_product, dim_customer, dim_store, fact_sales)
+[LOAD] dim_date populated with 936 unique dates
+[LOAD] dim_product populated with 25 products
+[LOAD] dim_customer populated with 238 customers
+[LOAD] dim_store populated with 8 stores
+[LOAD] fact_sales populated with 5000 transactions
+[SUMMARY] Total transactions loaded: 5000
+[SUMMARY] Total net revenue: 2033288.45
+ETL run finished: 2026-08-01T09:11:39

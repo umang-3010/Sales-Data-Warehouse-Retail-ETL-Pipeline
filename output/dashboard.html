@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Retail Sales Warehouse — Analytics Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #12161c;
+    --panel: #1a1f27;
+    --panel-border: #2a3038;
+    --ink: #eef1f3;
+    --ink-dim: #8c95a1;
+    --amber: #e8a33d;
+    --teal: #3fb8a3;
+    --rose: #d9705f;
+    --slate-blue: #6c8ebf;
+    --mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    --grot: 'Space Grotesk', 'Inter', sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--grot);
+    padding:32px 24px 60px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:1px dashed var(--panel-border);
+    padding-bottom:20px;margin-bottom:28px;flex-wrap:wrap;gap:12px;
+  }
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--amber);margin-bottom:6px;
+  }
+  h1{margin:0;font-size:28px;font-weight:700;letter-spacing:-0.01em;}
+  .subtitle{color:var(--ink-dim);font-size:13px;margin-top:6px;font-family:var(--mono);}
+  .stamp{
+    font-family:var(--mono);font-size:11px;color:var(--ink-dim);
+    text-align:right;line-height:1.6;
+  }
+  .stamp b{color:var(--teal);}
+
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;
+  }
+  .kpi{
+    background:var(--panel);border:1px solid var(--panel-border);
+    border-radius:6px;padding:16px 18px;position:relative;overflow:hidden;
+  }
+  .kpi::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);
+  }
+  .kpi:nth-child(2)::before{background:var(--teal);}
+  .kpi:nth-child(3)::before{background:var(--slate-blue);}
+  .kpi:nth-child(4)::before{background:var(--rose);}
+  .kpi-label{
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;
+  }
+  .kpi-value{font-size:26px;font-weight:700;font-family:var(--grot);}
+  .kpi-value span{font-size:14px;color:var(--ink-dim);font-weight:500;}
+
+  .grid{
+    display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:16px;
+  }
+  .grid-3{
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;
+  }
+  .panel{
+    background:var(--panel);border:1px solid var(--panel-border);
+    border-radius:6px;padding:18px 20px;
+  }
+  .panel-title{
+    font-family:var(--mono);font-size:11px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--ink-dim);margin-bottom:14px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .panel-title .tag{color:var(--amber);}
+  canvas{max-height:280px;}
+
+  .legend-line{
+    display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink-dim);
+  }
+  .legend-line span.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+
+  footer{
+    margin-top:28px;padding-top:16px;border-top:1px dashed var(--panel-border);
+    font-family:var(--mono);font-size:10.5px;color:var(--ink-dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+
+  @media (max-width:820px){
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .grid,.grid-3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">retail_dw &nbsp;·&nbsp; fact_sales × dim_date × dim_product × dim_customer × dim_store</div>
+      <h1>Sales Data Warehouse — Analytics</h1>
+      <div class="subtitle">Star-schema warehouse · Jan 2024 – Jul 2026 · 8 stores · 6 cities</div>
+    </div>
+    <div class="stamp">
+      SOURCE: raw_sales_data.csv → ETL → <b>retail_dw.db</b><br>
+      ROWS LOADED: <b id="stampRows">—</b> &nbsp;|&nbsp; DUPES REMOVED: <b>60</b>
+    </div>
+  </header>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total Net Revenue</div>
+      <div class="kpi-value" id="kpiRevenue">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value" id="kpiOrders">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg. Order Value</div>
+      <div class="kpi-value" id="kpiAOV">—</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Unique Customers</div>
+      <div class="kpi-value" id="kpiCustomers">—</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">Monthly Revenue Trend <span class="tag">31 months</span></div>
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Revenue by Category</div>
+      <canvas id="categoryChart"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="panel">
+      <div class="panel-title">Revenue by City</div>
+      <canvas id="cityChart"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Top 8 Products</div>
+      <canvas id="productChart"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Payment Method Split</div>
+      <canvas id="paymentChart"></canvas>
+      <div class="legend-line" id="paymentLegend"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div>ETL: Python (extract → clean → transform → load) &nbsp;|&nbsp; Warehouse: SQLite star schema &nbsp;|&nbsp; Viz: this dashboard (Power BI–connectable via <code>sales_flat_export_for_powerbi.csv</code>)</div>
+    <div>generated by etl_pipeline.py</div>
+  </footer>
+
+</div>
+
+<script>
+const DATA = {
+  "monthly_trend": [
+    {
+      "month": "2024-01",
+      "revenue": 63549.99,
+      "orders": 167
+    },
+    {
+      "month": "2024-02",
+      "revenue": 71627.34,
+      "orders": 160
+    },
+    {
+      "month": "2024-03",
+      "revenue": 70186.46,
+      "orders": 166
+    },
+    {
+      "month": "2024-04",
+      "revenue": 66865.89,
+      "orders": 163
+    },
+    {
+      "month": "2024-05",
+      "revenue": 68870.64,
+      "orders": 173
+    },
+    {
+      "month": "2024-06",
+      "revenue": 72660.84,
+      "orders": 167
+    },
+    {
+      "month": "2024-07",
+      "revenue": 72620.72,
+      "orders": 168
+    },
+    {
+      "month": "2024-08",
+      "revenue": 56079.28,
+      "orders": 144
+    },
+    {
+      "month": "2024-09",
+      "revenue": 58781.57,
+      "orders": 150
+    },
+    {
+      "month": "2024-10",
+      "revenue": 67531.01,
+      "orders": 175
+    },
+    {
+      "month": "2024-11",
+      "revenue": 51398.13,
+      "orders": 133
+    },
+    {
+      "month": "2024-12",
+      "revenue": 65575.37,
+      "orders": 172
+    },
+    {
+      "month": "2025-01",
+      "revenue": 60669.91,
+      "orders": 150
+    },
+    {
+      "month": "2025-02",
+      "revenue": 64875.98,
+      "orders": 156
+    },
+    {
+      "month": "2025-03",
+      "revenue": 58012.09,
+      "orders": 165
+    },
+    {
+      "month": "2025-04",
+      "revenue": 53255.18,
+      "orders": 131
+    },
+    {
+      "month": "2025-05",
+      "revenue": 61382.39,
+      "orders": 166
+    },
+    {
+      "month": "2025-06",
+      "revenue": 81032.5,
+      "orders": 184
+    },
+    {
+      "month": "2025-07",
+      "revenue": 63670.77,
+      "orders": 159
+    },
+    {
+      "month": "2025-08",
+      "revenue": 60268.23,
+      "orders": 157
+    },
+    {
+      "month": "2025-09",
+      "revenue": 67071.09,
+      "orders": 180
+    },
+    {
+      "month": "2025-10",
+      "revenue": 80937.42,
+      "orders": 198
+    },
+    {
+      "month": "2025-11",
+      "revenue": 64339.98,
+      "orders": 161
+    },
+    {
+      "month": "2025-12",
+      "revenue": 67134.4,
+      "orders": 157
+    },
+    {
+      "month": "2026-01",
+      "revenue": 62155.31,
+      "orders": 150
+    },
+    {
+      "month": "2026-02",
+      "revenue": 71070.16,
+      "orders": 151
+    },
+    {
+      "month": "2026-03",
+      "revenue": 67605.43,
+      "orders": 168
+    },
+    {
+      "month": "2026-04",
+      "revenue": 64862.34,
+      "orders": 160
+    },
+    {
+      "month": "2026-05",
+      "revenue": 67118.64,
+      "orders": 158
+    },
+    {
+      "month": "2026-06",
+      "revenue": 78515.5,
+      "orders": 165
+    },
+    {
+      "month": "2026-07",
+      "revenue": 53563.89,
+      "orders": 146
+    }
+  ],
+  "by_category": [
+    {
+      "category": "Apparel",
+      "revenue": 424612.95
+    },
+    {
+      "category": "Home & Kitchen",
+      "revenue": 408434.12
+    },
+    {
+      "category": "Sports",
+      "revenue": 406968.65
+    },
+    {
+      "category": "Electronics",
+      "revenue": 401070.34
+    },
+    {
+      "category": "Beauty",
+      "revenue": 392202.39
+    }
+  ],
+  "by_city": [
+    {
+      "city": "Lahore",
+      "revenue": 511146.43
+    },
+    {
+      "city": "Karachi",
+      "revenue": 503816.87
+    },
+    {
+      "city": "Peshawar",
+      "revenue": 279966.26
+    },
+    {
+      "city": "Faisalabad",
+      "revenue": 251649.18
+    },
+    {
+      "city": "Islamabad",
+      "revenue": 245419.83
+    },
+    {
+      "city": "Multan",
+      "revenue": 241289.88
+    }
+  ],
+  "top_products": [
+    {
+      "product": "Denim Jacket",
+      "revenue": 101149.58,
+      "units": 853
+    },
+    {
+      "product": "Football",
+      "revenue": 92851.14,
+      "units": 798
+    },
+    {
+      "product": "Blender",
+      "revenue": 92352.2,
+      "units": 767
+    },
+    {
+      "product": "Wool Sweater",
+      "revenue": 90336.68,
+      "units": 732
+    },
+    {
+      "product": "Non-Stick Pan",
+      "revenue": 88006.8,
+      "units": 754
+    },
+    {
+      "product": "Dumbbell Set",
+      "revenue": 86300.0,
+      "units": 700
+    },
+    {
+      "product": "Webcam HD",
+      "revenue": 83272.76,
+      "units": 663
+    },
+    {
+      "product": "Cotton T-Shirt",
+      "revenue": 82005.79,
+      "units": 698
+    }
+  ],
+  "payment_split": [
+    {
+      "method": "Cash",
+      "revenue": 678192.69,
+      "count": 1667
+    },
+    {
+      "method": "Credit Card",
+      "revenue": 662823.6,
+      "count": 1636
+    },
+    {
+      "method": "Mobile Wallet",
+      "revenue": 351157.06,
+      "count": 864
+    },
+    {
+      "method": "Debit Card",
+      "revenue": 341115.1,
+      "count": 833
+    }
+  ],
+  "kpis": {
+    "total_revenue": 2033288.45,
+    "total_orders": 5000,
+    "aov": 406.66,
+    "total_customers": 238
+  }
+};
+
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#8c95a1';
+
+const AMBER = '#e8a33d';
+const TEAL = '#3fb8a3';
+const ROSE = '#d9705f';
+const SLATE = '#6c8ebf';
+const GRID = 'rgba(255,255,255,0.05)';
+
+function fmtMoney(n){
+  if(n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if(n >= 1000) return '$' + (n/1000).toFixed(1) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+// KPIs
+document.getElementById('kpiRevenue').innerHTML = fmtMoney(DATA.kpis.total_revenue);
+document.getElementById('kpiOrders').innerHTML = DATA.kpis.total_orders.toLocaleString();
+document.getElementById('kpiAOV').innerHTML = '$' + DATA.kpis.aov.toFixed(2);
+document.getElementById('kpiCustomers').innerHTML = DATA.kpis.total_customers;
+document.getElementById('stampRows').innerHTML = DATA.kpis.total_orders.toLocaleString();
+
+// Trend chart
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: DATA.monthly_trend.map(d => d.month),
+    datasets: [{
+      label: 'Net Revenue',
+      data: DATA.monthly_trend.map(d => d.revenue),
+      borderColor: AMBER,
+      backgroundColor: 'rgba(232,163,61,0.12)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+      y: { grid: { color: GRID }, ticks: { callback: v => fmtMoney(v) } }
+    }
+  }
+});
+
+// Category chart (horizontal bar)
+new Chart(document.getElementById('categoryChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.by_category.map(d => d.category),
+    datasets: [{
+      data: DATA.by_category.map(d => d.revenue),
+      backgroundColor: [AMBER, TEAL, SLATE, ROSE, '#9b8ec4'],
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { callback: v => fmtMoney(v) } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// City chart
+new Chart(document.getElementById('cityChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.by_city.map(d => d.city),
+    datasets: [{
+      data: DATA.by_city.map(d => d.revenue),
+      backgroundColor: TEAL,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxRotation: 40, minRotation: 40 } },
+      y: { grid: { color: GRID }, ticks: { callback: v => fmtMoney(v) } }
+    }
+  }
+});
+
+// Top products (horizontal)
+new Chart(document.getElementById('productChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.top_products.map(d => d.product),
+    datasets: [{
+      data: DATA.top_products.map(d => d.revenue),
+      backgroundColor: SLATE,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: GRID }, ticks: { callback: v => fmtMoney(v) } },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Payment split (doughnut)
+const payColors = [AMBER, TEAL, SLATE, ROSE];
+new Chart(document.getElementById('paymentChart'), {
+  type: 'doughnut',
+  data: {
+    labels: DATA.payment_split.map(d => d.method),
+    datasets: [{
+      data: DATA.payment_split.map(d => d.revenue),
+      backgroundColor: payColors,
+      borderColor: '#1a1f27',
+      borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    cutout: '65%',
+  }
+});
+document.getElementById('paymentLegend').innerHTML = DATA.payment_split.map((d,i) =>
+  `<span><span class="dot" style="background:${payColors[i]}"></span>${d.method} — ${fmtMoney(d.revenue)}</span>`
+).join('');
+</script>
+</body>
+</html>
